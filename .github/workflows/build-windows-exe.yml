@@ -1,0 +1,36 @@
+name: 构建 Windows EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    
+    steps:
+    - name: 检出代码
+      uses: actions/checkout@v4
+    
+    - name: 设置 Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: 安装依赖
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pyinstaller
+    
+    - name: 打包为 EXE
+      run: |
+        pyinstaller --onefile --console --name "SLP商品爬虫" slp_scraper.py
+    
+    - name: 上传 EXE 文件
+      uses: actions/upload-artifact@v4
+      with:
+        name: SLP商品爬虫-Windows
+        path: dist/SLP商品爬虫.exe
+        retention-days: 30
