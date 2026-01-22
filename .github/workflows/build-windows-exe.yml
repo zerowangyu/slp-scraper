@@ -2,7 +2,7 @@ name: 构建可执行文件
 
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, feature/* ]
   workflow_dispatch:
 
 permissions:
@@ -16,11 +16,11 @@ jobs:
           - os: windows-latest
             name: Windows
             ext: .exe
-            artifact_name: SLP商品爬虫-Windows
+            artifact_name: Shopify爬虫-Windows
           - os: macos-latest
             name: macOS
             ext: ""
-            artifact_name: SLP商品爬虫-macOS
+            artifact_name: Shopify爬虫-macOS
     
     runs-on: ${{ matrix.os }}
     
@@ -41,24 +41,24 @@ jobs:
     
     - name: 打包为可执行文件
       run: |
-        pyinstaller --onefile --console --name "SLP商品爬虫" slp_scraper_simple.py
+        pyinstaller --onefile --console --name "Shopify商品爬虫" shopify_scraper.py
     
     - name: 重命名文件 (Windows)
       if: matrix.os == 'windows-latest'
       run: |
-        mv dist/SLP商品爬虫.exe dist/SLP商品爬虫-Windows.exe
+        mv "dist/Shopify商品爬虫.exe" "dist/Shopify商品爬虫-Windows.exe"
       shell: bash
     
     - name: 重命名文件 (macOS)
       if: matrix.os == 'macos-latest'
       run: |
-        mv dist/SLP商品爬虫 dist/SLP商品爬虫-macOS
+        mv "dist/Shopify商品爬虫" "dist/Shopify商品爬虫-macOS"
     
     - name: 上传文件
       uses: actions/upload-artifact@v4
       with:
         name: ${{ matrix.artifact_name }}
-        path: dist/SLP商品爬虫-${{ matrix.name }}${{ matrix.ext }}
+        path: dist/Shopify商品爬虫-${{ matrix.name }}${{ matrix.ext }}
         retention-days: 30
 
   release:
@@ -69,13 +69,13 @@ jobs:
     - name: 下载 Windows 文件
       uses: actions/download-artifact@v4
       with:
-        name: SLP商品爬虫-Windows
+        name: Shopify爬虫-Windows
         path: dist/
     
     - name: 下载 macOS 文件
       uses: actions/download-artifact@v4
       with:
-        name: SLP商品爬虫-macOS
+        name: Shopify爬虫-macOS
         path: dist/
     
     - name: 列出文件
@@ -89,27 +89,30 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v${{ github.run_number }}
-        name: SLP商品爬虫 v${{ github.run_number }} (${{ steps.date.outputs.date }})
+        name: Shopify商品爬虫 v${{ github.run_number }} (${{ steps.date.outputs.date }})
         body: |
-          ## SLP Trading 商品爬虫
+          ## 通用 Shopify 商品爬虫
           
-          自动打包的可执行文件，支持 Windows 和 macOS。
+          支持任意 Shopify 网站的商品数据采集。
           
           ### 下载
-          - **Windows**: `SLP商品爬虫-Windows.exe`
-          - **macOS**: `SLP商品爬虫-macOS`
+          - **Windows**: `Shopify商品爬虫-Windows.exe`
+          - **macOS**: `Shopify商品爬虫-macOS`
           
           ### 使用方法
           1. 下载对应系统的文件
           2. Windows: 双击运行
-          3. macOS: 打开终端，运行 `chmod +x SLP商品爬虫-macOS && ./SLP商品爬虫-macOS`
-          4. 等待爬取完成，会在同目录生成 `slp_products.csv`
+          3. macOS: 打开终端，运行 `chmod +x Shopify商品爬虫-macOS && ./Shopify商品爬虫-macOS`
+          4. 输入要爬取的 Shopify 网站地址
+          5. 等待爬取完成，会在同目录生成 CSV 文件
           
-          ### 数据说明
-          - 商品名称、SKU条形码、分类、价格、库存状态、商品链接
-          - 约 2300+ 条商品数据
+          ### 支持的数据
+          - 商品名称、SKU、条形码
+          - 分类、品牌、商品类型
+          - 价格、原价、库存状态
+          - 商品链接
         files: |
-          dist/SLP商品爬虫-Windows.exe
-          dist/SLP商品爬虫-macOS
+          dist/Shopify商品爬虫-Windows.exe
+          dist/Shopify商品爬虫-macOS
         draft: false
         prerelease: false
