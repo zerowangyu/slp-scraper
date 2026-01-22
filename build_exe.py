@@ -29,7 +29,7 @@ def build_exe():
         "--console",
         "--name", "SLP商品爬虫",
         "--clean",
-        "slp_scraper.py"
+        "slp_scraper_simple.py"
     ]
     
     subprocess.check_call(cmd)
