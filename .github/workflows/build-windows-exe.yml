@@ -26,7 +26,7 @@ jobs:
     
     - name: 打包为 EXE
       run: |
-        pyinstaller --onefile --console --name "SLP商品爬虫" slp_scraper.py
+        pyinstaller --onefile --console --name "SLP商品爬虫" slp_scraper_simple.py
     
     - name: 上传 EXE 文件
       uses: actions/upload-artifact@v4
