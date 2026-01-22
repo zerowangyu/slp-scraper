@@ -31,9 +31,11 @@ slp_products.csv
 # 敏感信息
 cookies.json
 
-# 截图和日志
-*.png
+# 日志
 *.log
+
+# 保留打赏二维码
+!alipay.png.jpg
 
 # 旧版本
 slp_scraper.py
