@@ -35,7 +35,7 @@ cookies.json
 *.log
 
 # 保留打赏二维码
-!alipay.png.jpg
+!alipay.jpg
 
 # 旧版本
 slp_scraper.py

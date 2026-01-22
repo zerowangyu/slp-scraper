@@ -118,7 +118,7 @@ jobs:
           
           如果这个工具对你有帮助，欢迎打赏支持！
           
-          <img src="https://raw.githubusercontent.com/zerowangyu/slp-scraper/main/alipay.png.jpg" width="250" alt="支付宝打赏码">
+          <img src="https://raw.githubusercontent.com/zerowangyu/slp-scraper/feature/universal-shopify/alipay.jpg" width="250" alt="支付宝打赏码">
         files: |
           dist/Shopify商品爬虫-Windows.exe
           dist/Shopify商品爬虫-macOS
