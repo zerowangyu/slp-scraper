@@ -35,9 +35,15 @@ cookies.json
 *.png
 *.log
 
-# 旧版本
+# 旧版本和敏感文件
 slp_scraper.py
+login_failed.png
 归档.zip
+
+# 敏感信息
+*password*
+*credential*
+*.env
 
 # IDE
 .idea/
