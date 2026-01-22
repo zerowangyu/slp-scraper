@@ -1,13 +1,28 @@
-name: 构建 Windows EXE
+name: 构建可执行文件
 
 on:
   push:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            name: Windows
+            ext: .exe
+            artifact_name: SLP商品爬虫-Windows
+          - os: macos-latest
+            name: macOS
+            ext: ""
+            artifact_name: SLP商品爬虫-macOS
+    
+    runs-on: ${{ matrix.os }}
     
     steps:
     - name: 检出代码
@@ -24,13 +39,77 @@ jobs:
         pip install -r requirements.txt
         pip install pyinstaller
     
-    - name: 打包为 EXE
+    - name: 打包为可执行文件
       run: |
         pyinstaller --onefile --console --name "SLP商品爬虫" slp_scraper_simple.py
     
-    - name: 上传 EXE 文件
+    - name: 重命名文件 (Windows)
+      if: matrix.os == 'windows-latest'
+      run: |
+        mv dist/SLP商品爬虫.exe dist/SLP商品爬虫-Windows.exe
+      shell: bash
+    
+    - name: 重命名文件 (macOS)
+      if: matrix.os == 'macos-latest'
+      run: |
+        mv dist/SLP商品爬虫 dist/SLP商品爬虫-macOS
+    
+    - name: 上传文件
       uses: actions/upload-artifact@v4
       with:
-        name: SLP商品爬虫-Windows
-        path: dist/SLP商品爬虫.exe
+        name: ${{ matrix.artifact_name }}
+        path: dist/SLP商品爬虫-${{ matrix.name }}${{ matrix.ext }}
         retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 下载 Windows 文件
+      uses: actions/download-artifact@v4
+      with:
+        name: SLP商品爬虫-Windows
+        path: dist/
+    
+    - name: 下载 macOS 文件
+      uses: actions/download-artifact@v4
+      with:
+        name: SLP商品爬虫-macOS
+        path: dist/
+    
+    - name: 列出文件
+      run: ls -la dist/
+    
+    - name: 获取当前日期
+      id: date
+      run: echo "date=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+    
+    - name: 创建 Release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: v${{ github.run_number }}
+        name: SLP商品爬虫 v${{ github.run_number }} (${{ steps.date.outputs.date }})
+        body: |
+          ## SLP Trading 商品爬虫
+          
+          自动打包的可执行文件，支持 Windows 和 macOS。
+          
+          ### 下载
+          - **Windows**: `SLP商品爬虫-Windows.exe`
+          - **macOS**: `SLP商品爬虫-macOS`
+          
+          ### 使用方法
+          1. 下载对应系统的文件
+          2. Windows: 双击运行
+          3. macOS: 打开终端，运行 `chmod +x SLP商品爬虫-macOS && ./SLP商品爬虫-macOS`
+          4. 等待爬取完成，会在同目录生成 `slp_products.csv`
+          
+          ### 数据说明
+          - 商品名称、SKU条形码、分类、价格、库存状态、商品链接
+          - 约 2300+ 条商品数据
+        files: |
+          dist/SLP商品爬虫-Windows.exe
+          dist/SLP商品爬虫-macOS
+        draft: false
+        prerelease: false
